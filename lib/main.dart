@@ -141,6 +141,11 @@ class _ChessboardState extends State<Chessboard> {
         movedSquare = details.data;
         return true;
       },
+      onLeave: (data) {
+        setState(() {
+          target = null;
+        });
+      },
       builder: (BuildContext context, _, _) {
         return Listener(
           onPointerDown: (PointerDownEvent event) {
@@ -152,6 +157,8 @@ class _ChessboardState extends State<Chessboard> {
             if (target == null || movedSquare == null) return;
             setState(() {
               if (!Size(squareSize * 8, squareSize * 8).contains(target!)) {
+                target = null;
+                movedSquare = null;
                 return;
               }
               Square square = Square.fromCoords(
@@ -180,21 +187,16 @@ class _ChessboardState extends State<Chessboard> {
                   (e) => Positioned(
                     left: e.$1.file.value * squareSize,
                     top: (8 - e.$1.rank.value) * squareSize,
-                    child: IgnorePointer(
-                      ignoring: target != null,
-                      child: Draggable<Square>(
-                        data: e.$1,
-                        feedback: Text(
-                          e.$2.fenChar,
-                          style: TextStyle(fontSize: squareSize),
-                        ),
-                        childWhenDragging: SizedBox.square(
-                          dimension: squareSize,
-                        ),
-                        child: Text(
-                          e.$2.fenChar,
-                          style: TextStyle(fontSize: squareSize),
-                        ),
+                    child: Draggable<Square>(
+                      data: e.$1,
+                      feedback: Text(
+                        e.$2.fenChar,
+                        style: TextStyle(fontSize: squareSize),
+                      ),
+                      childWhenDragging: SizedBox.square(dimension: squareSize),
+                      child: Text(
+                        e.$2.fenChar,
+                        style: TextStyle(fontSize: squareSize),
                       ),
                     ),
                   ),
@@ -296,8 +298,11 @@ class _ClientAppState extends State<ClientApp> {
     if (position == null) {
       return CircularProgressIndicator();
     }
-    return Chessboard(position: position!, move: (Move move) {
-      potato!.write(move.toString().codeUnits);
-    });
+    return Chessboard(
+      position: position!,
+      move: (Move move) {
+        potato!.write(move.toString().codeUnits);
+      },
+    );
   }
 }
