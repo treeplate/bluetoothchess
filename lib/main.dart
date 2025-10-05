@@ -4,6 +4,7 @@ import 'package:dartchess/dartchess.dart';
 import 'package:flutter/material.dart';
 import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_ble/universal_ble.dart';
 
 void main() {
@@ -240,6 +241,8 @@ class _ClientAppState extends State<ClientApp> {
   }
 
   void asyncInitState() async {
+    await Permission.bluetoothConnect.request().isGranted;
+    await Permission.bluetoothScan.request().isGranted;
     AvailabilityState state =
         await UniversalBle.getBluetoothAvailabilityState();
     setState(() {
@@ -267,10 +270,12 @@ class _ClientAppState extends State<ClientApp> {
         UniversalBle.startScan(scanFilter: ScanFilter(withServices: [service]));
       }
     });
-    UniversalBle.onScanResult = (BleDevice device) {
+    UniversalBle.onScanResult = (BleDevice device) async {
       UniversalBle.onScanResult = null;
       print(device.name);
-      device.connect();
+      await device.connect();
+      print(await device.requestMtu(500));
+      await device.pair();
       device.getCharacteristic(characteristic, service: service).then((value) {
         setState(() {
           potato = value;
