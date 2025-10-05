@@ -167,6 +167,7 @@ class _LocalChessAppState extends State<LocalChessApp> {
   int blackWins = 0;
   int whiteWins = 0;
   Random r = Random();
+  bool? vsBot;
 
   int botScore(Square source, Square destination) {
     NormalMove move = NormalMove(from: source, to: destination);
@@ -203,6 +204,7 @@ class _LocalChessAppState extends State<LocalChessApp> {
   }
 
   void botMove() {
+    if (vsBot != true) return;
     if (position.checkers.isEmpty && bCoins >= 3) {
       summonHorsey(Side.black);
       return;
@@ -225,6 +227,36 @@ class _LocalChessAppState extends State<LocalChessApp> {
 
   @override
   Widget build(BuildContext context) {
+    if (vsBot == null) {
+      return MaterialApp(
+        theme: ThemeData.dark(),
+        home: Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                OutlinedButton(
+                  onPressed: () {
+                    setState(() {
+                      vsBot = true;
+                    });
+                  },
+                  child: Text('Computer'),
+                ),
+                OutlinedButton(
+                  onPressed: () {
+                    setState(() {
+                      vsBot = false;
+                    });
+                  },
+                  child: Text('Local multiplayer'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
     return MaterialApp(
       theme: ThemeData.dark(),
       home: Column(
@@ -234,7 +266,7 @@ class _LocalChessAppState extends State<LocalChessApp> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               IgnorePointer(
-                ignoring: position.turn == Side.black,
+                ignoring: position.turn == Side.black && vsBot!,
                 child: Chessboard(
                   position: position,
                   move: (NormalMove move) {
@@ -319,6 +351,17 @@ class _LocalChessAppState extends State<LocalChessApp> {
                           color: Colors.white,
                           decoration: TextDecoration.none,
                         ),
+                      ),
+                      if (!vsBot!) OutlinedButton(
+                        onPressed:
+                            bCoins >= 3 &&
+                                position.turn == Side.black &&
+                                position.checkers.isEmpty
+                            ? () {
+                                summonHorsey(Side.black);
+                              }
+                            : null,
+                        child: Text('Call for backup (3 horsecoins)'),
                       ),
                     ],
                   ),
