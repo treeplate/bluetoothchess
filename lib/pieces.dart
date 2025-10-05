@@ -400,7 +400,7 @@ class CoinIcon extends StatelessWidget {
         width: width * 5 / 7,
         height: height * 5 / 7,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(width/2),
           color: color,
         ),
         child: Center(

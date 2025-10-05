@@ -16,7 +16,7 @@ class Chessboard extends StatefulWidget {
 class _ChessboardState extends State<Chessboard> {
   Square? movedSquare;
   Offset? target;
-  static const double squareSize = 40;
+  static const double squareSize = 80;
 
   @override
   Widget build(BuildContext context) {
@@ -311,7 +311,7 @@ class _LocalChessAppState extends State<LocalChessApp> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 320 - 40 * 2 - 8 * 3),
+                  SizedBox(height: _ChessboardState.squareSize * 8 - 40 * 2 - 8 * 3),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
