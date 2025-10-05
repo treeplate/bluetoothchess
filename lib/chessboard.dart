@@ -171,167 +171,262 @@ class _LocalChessAppState extends State<LocalChessApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark(),
-      home: Row(
+      home: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Chessboard(
-            position: position,
-            move: (NormalMove move) {
-              setState(() {
-                if (position.isLegal(move.withPromotion(promoteTo))) {
-                  move = move.withPromotion(promoteTo);
-                }
-                Role? destinationPiece = position.board.pieceAt(move.to)?.role;
-                Role? sourcePiece = position.board.pieceAt(move.from)?.role;
-                if (destinationPiece == Role.knight) {
-                  if (position.turn == Side.white) {
-                    wCoins += 3;
-                  } else {
-                    bCoins += 3;
-                  }
-                }
-                if (sourcePiece == Role.knight && destinationPiece != null) {
-                  if (position.turn == Side.white) {
-                    wCoins += values[destinationPiece]!;
-                  } else {
-                    bCoins += values[destinationPiece]!;
-                  }
-                }
-                position = position.play(move);
-                if (position.isCheckmate) {
-                  if (position.turn == Side.white) {
-                    blackWins++;
-                    if (!position.checkers.isDisjoint(position.board.knights)) {
-                      bCoins += values[Role.king]!;
-                    }
-                  } else {
-                    whiteWins++;
-                    if (!position.checkers.isDisjoint(position.board.knights)) {
-                      wCoins += values[Role.king]!;
-                    }
-                  }
-                }
-                if (position.isGameOver) {
-                  position = Chess.initial;
-                }
-              });
-            },
-          ),
-          Material(
-            color: Colors.transparent,
-            child: RadioGroup<Role>(
-              groupValue: promoteTo,
-              onChanged: (Role? value) {
-                setState(() {
-                  promoteTo = value!;
-                });
-              },
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('Promote to:'),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Radio(value: Role.queen),
-                      Text('Queen'),
-                    ],
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Radio(value: Role.rook),
-                      Text('Rook'),
-                    ],
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Radio(value: Role.bishop),
-                      Text('Bishop'),
-                    ],
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Radio(value: Role.knight),
-                      Text('Knight'),
-                    ],
-                  ),
-                  Text(
-                    position.turn == Side.white ? 'turn: white' : 'turn: black',
-                  ),
-                  Text('white wins: $whiteWins'),
-                  Text('black wins: $blackWins'),
-                ],
-              ),
-            ),
-          ),
-          Column(
-            mainAxisSize: MainAxisSize.min,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Black',
-                    style: TextStyle(
-                      color: Colors.white,
-                      decoration: TextDecoration.none,
-                      fontSize: 20,
-                    ),
-                  ),
-                  CoinIcon(),
-                  Text(
-                    bCoins.toString(),
-                    style: TextStyle(
-                      color: Colors.white,
-                      decoration: TextDecoration.none,
-                    ),
-                  ),
-                  OutlinedButton(
-                    onPressed:
-                        bCoins >= 3 &&
-                            position.turn == Side.black &&
-                            position.checkers.isEmpty
-                        ? () => summonHorsey(Side.black)
-                        : null,
-                    child: Text('Call for backup (3 horsecoins)'),
-                  ),
-                ],
+              Chessboard(
+                position: position,
+                move: (NormalMove move) {
+                  setState(() {
+                    if (position.isLegal(move.withPromotion(promoteTo))) {
+                      move = move.withPromotion(promoteTo);
+                    }
+                    Role? destinationPiece = position.board
+                        .pieceAt(move.to)
+                        ?.role;
+                    Role? sourcePiece = position.board.pieceAt(move.from)?.role;
+                    if (destinationPiece == Role.knight) {
+                      if (position.turn == Side.white) {
+                        wCoins += 3;
+                      } else {
+                        bCoins += 3;
+                      }
+                    }
+                    if (sourcePiece == Role.knight &&
+                        destinationPiece != null) {
+                      if (position.turn == Side.white) {
+                        wCoins += values[destinationPiece]!;
+                      } else {
+                        bCoins += values[destinationPiece]!;
+                      }
+                    }
+                    position = position.play(move);
+                    if (position.isCheckmate) {
+                      if (position.turn == Side.white) {
+                        blackWins++;
+                        if (!position.checkers.isDisjoint(
+                          position.board.knights,
+                        )) {
+                          bCoins += values[Role.king]!;
+                        }
+                      } else {
+                        whiteWins++;
+                        if (!position.checkers.isDisjoint(
+                          position.board.knights,
+                        )) {
+                          wCoins += values[Role.king]!;
+                        }
+                      }
+                    }
+                    if (position.isGameOver) {
+                      position = Chess.initial;
+                    }
+                  });
+                },
               ),
-              SizedBox(height: 320 - 40 * 2 - 8 * 3),
-              Row(
+              Material(
+                color: Colors.transparent,
+                child: RadioGroup<Role>(
+                  groupValue: promoteTo,
+                  onChanged: (Role? value) {
+                    setState(() {
+                      promoteTo = value!;
+                    });
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Promote to:'),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Radio(value: Role.queen),
+                          Text('Queen'),
+                        ],
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Radio(value: Role.rook),
+                          Text('Rook'),
+                        ],
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Radio(value: Role.bishop),
+                          Text('Bishop'),
+                        ],
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Radio(value: Role.knight),
+                          Text('Knight'),
+                        ],
+                      ),
+                      Text(
+                        position.turn == Side.white
+                            ? 'turn: white'
+                            : 'turn: black',
+                      ),
+                      Text('white wins: $whiteWins'),
+                      Text('black wins: $blackWins'),
+                    ],
+                  ),
+                ),
+              ),
+              Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    'White',
-                    style: TextStyle(
-                      color: Colors.white,
-                      decoration: TextDecoration.none,
-                      fontSize: 20,
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Black',
+                        style: TextStyle(
+                          color: Colors.white,
+                          decoration: TextDecoration.none,
+                          fontSize: 20,
+                        ),
+                      ),
+                      CoinIcon(),
+                      Text(
+                        bCoins.toString(),
+                        style: TextStyle(
+                          color: Colors.white,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                      OutlinedButton(
+                        onPressed:
+                            bCoins >= 3 &&
+                                position.turn == Side.black &&
+                                position.checkers.isEmpty
+                            ? () => summonHorsey(Side.black)
+                            : null,
+                        child: Text('Call for backup (3 horsecoins)'),
+                      ),
+                    ],
                   ),
-                  CoinIcon(),
-                  Text(
-                    wCoins.toString(),
-                    style: TextStyle(
-                      color: Colors.white,
-                      decoration: TextDecoration.none,
-                    ),
-                  ),
-                  OutlinedButton(
-                    onPressed:
-                        wCoins >= 3 &&
-                            position.turn == Side.white &&
-                            position.checkers.isEmpty
-                        ? () => summonHorsey(Side.white)
-                        : null,
-                    child: Text('Call for backup (3 horsecoins)'),
+                  SizedBox(height: 320 - 40 * 2 - 8 * 3),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'White',
+                        style: TextStyle(
+                          color: Colors.white,
+                          decoration: TextDecoration.none,
+                          fontSize: 20,
+                        ),
+                      ),
+                      CoinIcon(),
+                      Text(
+                        wCoins.toString(),
+                        style: TextStyle(
+                          color: Colors.white,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                      OutlinedButton(
+                        onPressed:
+                            wCoins >= 3 &&
+                                position.turn == Side.white &&
+                                position.checkers.isEmpty
+                            ? () => summonHorsey(Side.white)
+                            : null,
+                        child: Text('Call for backup (3 horsecoins)'),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ],
+          ),
+          Text(
+            'If you take a knight, you get 3 horsecoins.',
+            style: TextStyle(
+              color: Colors.white,
+              decoration: TextDecoration.none,
+              fontSize: 20,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+          Text(
+            'If you take something with a knight, you get the value of that piece.',
+            style: TextStyle(
+              color: Colors.white,
+              decoration: TextDecoration.none,
+              fontSize: 20,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+          Text(
+            'Values of pieces:',
+            style: TextStyle(
+              color: Colors.white,
+              decoration: TextDecoration.none,
+              fontSize: 20,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+          Text(
+            'Pawn: ${values[Role.pawn]} horsecoin${values[Role.pawn] == 1 ? '' : 's'}',
+            style: TextStyle(
+              color: Colors.white,
+              decoration: TextDecoration.none,
+              fontSize: 20,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+          Text(
+            'Bishop: ${values[Role.bishop]} horsecoin${values[Role.bishop] == 1 ? '' : 's'}',
+            style: TextStyle(
+              color: Colors.white,
+              decoration: TextDecoration.none,
+              fontSize: 20,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+          Text(
+            'Knight: ${values[Role.knight]} horsecoin${values[Role.knight] == 1 ? '' : 's'}',
+            style: TextStyle(
+              color: Colors.white,
+              decoration: TextDecoration.none,
+              fontSize: 20,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+          Text(
+            'Rook: ${values[Role.rook]} horsecoin${values[Role.rook] == 1 ? '' : 's'}',
+            style: TextStyle(
+              color: Colors.white,
+              decoration: TextDecoration.none,
+              fontSize: 20,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+          Text(
+            'Queen: ${values[Role.queen]} horsecoin${values[Role.queen] == 1 ? '' : 's'}',
+            style: TextStyle(
+              color: Colors.white,
+              decoration: TextDecoration.none,
+              fontSize: 20,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+          Text(
+            'King: ${values[Role.king]} horsecoin${values[Role.king] == 1 ? '' : 's'}',
+            style: TextStyle(
+              color: Colors.white,
+              decoration: TextDecoration.none,
+              fontSize: 20,
+              fontWeight: FontWeight.normal,
+            ),
           ),
         ],
       ),
