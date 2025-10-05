@@ -10,13 +10,15 @@ import 'package:universal_ble/universal_ble.dart';
 import 'chessboard.dart';
 
 void main() {
+  runApp(LocalChessApp());
+  /*
   WidgetsFlutterBinding.ensureInitialized();
   try {
     PeripheralManager();
     runApp(const TypeSelectorApp());
   } on UnimplementedError {
     runApp(const ClientApp());
-  }
+  }*/
 }
 
 const String service = 'bc42';

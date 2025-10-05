@@ -43,7 +43,7 @@ class _ChessboardState extends State<Chessboard> {
               }
               Square square = Square.fromCoords(
                 File.values[target!.dx ~/ squareSize],
-                Rank.values[8 - target!.dy ~/ squareSize],
+                Rank.values[7 - target!.dy ~/ squareSize],
               );
               Move move = NormalMove(from: movedSquare!, to: square);
               if (widget.position.isLegal(move)) {
@@ -66,7 +66,7 @@ class _ChessboardState extends State<Chessboard> {
                 ...widget.position.board.pieces.map(
                   (e) => Positioned(
                     left: e.$1.file.value * squareSize,
-                    top: (8 - e.$1.rank.value) * squareSize,
+                    top: (7 - e.$1.rank.value) * squareSize,
                     child: Draggable<Square>(
                       data: e.$1,
                       feedback: Text(
@@ -97,5 +97,43 @@ class _ChessboardState extends State<Chessboard> {
         );
       },
     );
+  }
+}
+
+class LocalChessApp extends StatefulWidget {
+  const LocalChessApp({super.key});
+
+  @override
+  State<LocalChessApp> createState() => _LocalChessAppState();
+}
+
+class _LocalChessAppState extends State<LocalChessApp> {
+  Position position = Chess.fromSetup(Setup.standard);
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Chessboard(
+            position: position,
+            move: (move) {
+              setState(() {
+                position = position.play(move);
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CoinIcon extends StatelessWidget {
+  const CoinIcon({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(color: Colors.yellow, decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),);
   }
 }
