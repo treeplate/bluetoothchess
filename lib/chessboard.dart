@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class Chessboard extends StatefulWidget {
   const Chessboard({super.key, required this.position, required this.move});
   final Position position;
-  final void Function(Move move) move;
+  final void Function(NormalMove move) move;
 
   @override
   State<Chessboard> createState() => _ChessboardState();
@@ -45,7 +45,7 @@ class _ChessboardState extends State<Chessboard> {
                 File.values[target!.dx ~/ squareSize],
                 Rank.values[7 - target!.dy ~/ squareSize],
               );
-              Move move = NormalMove(from: movedSquare!, to: square);
+              NormalMove move = NormalMove(from: movedSquare!, to: square);
               if (widget.position.isLegal(move)) {
                 widget.move(move);
               }
@@ -109,6 +109,7 @@ class LocalChessApp extends StatefulWidget {
 
 class _LocalChessAppState extends State<LocalChessApp> {
   Position position = Chess.fromSetup(Setup.standard);
+  Role promoteTo = Role.queen;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -117,11 +118,57 @@ class _LocalChessAppState extends State<LocalChessApp> {
         children: [
           Chessboard(
             position: position,
-            move: (move) {
+            move: (NormalMove move) {
               setState(() {
+                if (position.isLegal(move.withPromotion(promoteTo))) {
+                  move = move.withPromotion(promoteTo);
+                }
                 position = position.play(move);
               });
             },
+          ),
+          Material(
+            child: RadioGroup<Role>(
+              groupValue: promoteTo,
+              onChanged: (Role? value) {
+                setState(() {
+                  promoteTo = value!;
+                });
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Radio(value: Role.queen),
+                      Text('Queen'),
+                    ],
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Radio(value: Role.rook),
+                      Text('Rook'),
+                    ],
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Radio(value: Role.bishop),
+                      Text('Bishop'),
+                    ],
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Radio(value: Role.knight),
+                      Text('Knight'),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -134,6 +181,9 @@ class CoinIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(color: Colors.yellow, decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),);
+    return Container(
+      color: Colors.yellow,
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+    );
   }
 }
