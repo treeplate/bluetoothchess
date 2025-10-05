@@ -118,8 +118,8 @@ class _ChessboardState extends State<Chessboard> {
                         .squares
                         .map(
                           (e) => Positioned(
-                      left: e.file.value * squareSize+squareSize/4,
-                      bottom: e.rank.value * squareSize+squareSize/4,
+                            left: e.file.value * squareSize + squareSize / 4,
+                            bottom: e.rank.value * squareSize + squareSize / 4,
                             child: Container(
                               width: squareSize / 2,
                               height: squareSize / 2,
