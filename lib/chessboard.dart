@@ -154,6 +154,20 @@ class _LocalChessAppState extends State<LocalChessApp> {
                   }
                 }
                 position = position.play(move);
+                if (position.isCheckmate) {
+                  if (position.turn == Side.white) {
+                    if (!position.checkers.isDisjoint(position.board.knights)) {
+                      wCoins += values[Role.king]!;
+                    }
+                  } else {
+                    if (!position.checkers.isDisjoint(position.board.knights)) {
+                      bCoins += values[Role.king]!;
+                    }
+                  }
+                }
+                if (position.isGameOver) {
+                  position = Chess.initial;
+                }
               });
             },
           ),
@@ -209,7 +223,10 @@ class _LocalChessAppState extends State<LocalChessApp> {
                   CoinIcon(),
                   Text(bCoins.toString()),
                   OutlinedButton(
-                    onPressed: bCoins >= 3
+                    onPressed:
+                        bCoins >= 3 &&
+                            position.turn == Side.black &&
+                            position.checkers.isEmpty
                         ? () => summonHorsey(Side.black)
                         : null,
                     child: Text('Call for backup (3 horsecoins)'),
@@ -223,7 +240,10 @@ class _LocalChessAppState extends State<LocalChessApp> {
                   CoinIcon(),
                   Text(wCoins.toString()),
                   OutlinedButton(
-                    onPressed: wCoins >= 3
+                    onPressed:
+                        wCoins >= 3 &&
+                            position.turn == Side.white &&
+                            position.checkers.isEmpty
                         ? () => summonHorsey(Side.white)
                         : null,
                     child: Text('Call for backup (3 horsecoins)'),
@@ -252,12 +272,18 @@ class _LocalChessAppState extends State<LocalChessApp> {
       }
     }
     setState(() {
+      if (color == Side.white) {
+        wCoins -= 3;
+      } else {
+        bCoins -= 3;
+      }
       if (emptySquares.isEmpty) {
         position = position.copyWith(
           board: position.board.setPieceAt(
             Square(r.nextInt(64)),
             Piece(color: color, role: Role.knight),
           ),
+          turn: color.opposite,
         );
       } else {
         position = position.copyWith(
@@ -265,12 +291,27 @@ class _LocalChessAppState extends State<LocalChessApp> {
             emptySquares[r.nextInt(emptySquares.length)],
             Piece(color: color, role: Role.knight),
           ),
+          turn: color.opposite,
         );
       }
-      if (color == Side.white) {
-        wCoins -= 3;
-      } else {
-        bCoins -= 3;
+      if (!position.board.kings.moreThanOne) {
+        if (position.board.white.isDisjoint(position.board.kings)) {
+          bCoins += values[Role.king]!;
+        } else {
+          wCoins += values[Role.king]!;
+        }
+        position = Chess.initial;
+        return;
+      }
+      if (position.isCheckmate) {
+        if (color == Side.white) {
+          wCoins += values[Role.king]!;
+        } else {
+          bCoins += values[Role.king]!;
+        }
+      }
+      if (position.isGameOver) {
+        position = Chess.initial;
       }
     });
   }
