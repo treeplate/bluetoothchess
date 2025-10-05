@@ -164,6 +164,8 @@ class _LocalChessAppState extends State<LocalChessApp> {
   Role promoteTo = Role.queen;
   int wCoins = 0;
   int bCoins = 0;
+  int blackWins = 0;
+  int whiteWins = 0;
   Random r = Random();
   @override
   Widget build(BuildContext context) {
@@ -197,10 +199,12 @@ class _LocalChessAppState extends State<LocalChessApp> {
                 position = position.play(move);
                 if (position.isCheckmate) {
                   if (position.turn == Side.white) {
+                    blackWins++;
                     if (!position.checkers.isDisjoint(position.board.knights)) {
                       bCoins += values[Role.king]!;
                     }
                   } else {
+                    whiteWins++;
                     if (!position.checkers.isDisjoint(position.board.knights)) {
                       wCoins += values[Role.king]!;
                     }
@@ -253,6 +257,12 @@ class _LocalChessAppState extends State<LocalChessApp> {
                   ),
                   Text(
                     position.turn == Side.white ? 'turn: white' : 'turn: black',
+                  ),
+                  Text(
+                    'white wins: $whiteWins',
+                  ),
+                  Text(
+                    'black wins: $blackWins',
                   ),
                 ],
               ),
@@ -341,8 +351,10 @@ class _LocalChessAppState extends State<LocalChessApp> {
       if (!position.board.kings.moreThanOne) {
         if (position.board.white.isDisjoint(position.board.kings)) {
           bCoins += values[Role.king]!;
+          blackWins++;
         } else {
           wCoins += values[Role.king]!;
+          whiteWins++;
         }
         position = Chess.initial;
         return;
@@ -350,8 +362,10 @@ class _LocalChessAppState extends State<LocalChessApp> {
       if (position.isCheckmate) {
         if (color == Side.white) {
           wCoins += values[Role.king]!;
+          whiteWins++;
         } else {
           bCoins += values[Role.king]!;
+          blackWins++;
         }
       }
       if (position.isGameOver) {
