@@ -17,7 +17,7 @@ class _ChessboardState extends State<Chessboard> {
   Square? movedSquare;
   Offset? target;
   static const double squareSize = 40;
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -258,12 +258,8 @@ class _LocalChessAppState extends State<LocalChessApp> {
                   Text(
                     position.turn == Side.white ? 'turn: white' : 'turn: black',
                   ),
-                  Text(
-                    'white wins: $whiteWins',
-                  ),
-                  Text(
-                    'black wins: $blackWins',
-                  ),
+                  Text('white wins: $whiteWins'),
+                  Text('black wins: $blackWins'),
                 ],
               ),
             ),
@@ -275,7 +271,13 @@ class _LocalChessAppState extends State<LocalChessApp> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   CoinIcon(),
-                  Text(bCoins.toString()),
+                  Text(
+                    bCoins.toString(),
+                    style: TextStyle(
+                      color: Colors.white,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
                   OutlinedButton(
                     onPressed:
                         bCoins >= 3 &&
@@ -292,7 +294,13 @@ class _LocalChessAppState extends State<LocalChessApp> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   CoinIcon(),
-                  Text(wCoins.toString()),
+                  Text(
+                    wCoins.toString(),
+                    style: TextStyle(
+                      color: Colors.white,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
                   OutlinedButton(
                     onPressed:
                         wCoins >= 3 &&
