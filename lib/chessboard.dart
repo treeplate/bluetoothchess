@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/material.dart';
 
@@ -107,9 +109,21 @@ class LocalChessApp extends StatefulWidget {
   State<LocalChessApp> createState() => _LocalChessAppState();
 }
 
+Map<Role, int> values = {
+  Role.pawn: 1,
+  Role.bishop: 2,
+  Role.knight: 3,
+  Role.rook: 4,
+  Role.queen: 7,
+  Role.king: 10,
+};
+
 class _LocalChessAppState extends State<LocalChessApp> {
   Position position = Chess.fromSetup(Setup.standard);
   Role promoteTo = Role.queen;
+  int wCoins = 0;
+  int bCoins = 0;
+  Random r = Random();
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -122,6 +136,22 @@ class _LocalChessAppState extends State<LocalChessApp> {
               setState(() {
                 if (position.isLegal(move.withPromotion(promoteTo))) {
                   move = move.withPromotion(promoteTo);
+                }
+                Role? destinationPiece = position.board.pieceAt(move.to)?.role;
+                Role? sourcePiece = position.board.pieceAt(move.from)?.role;
+                if (destinationPiece == Role.knight) {
+                  if (position.turn == Side.white) {
+                    wCoins += 3;
+                  } else {
+                    bCoins += 3;
+                  }
+                }
+                if (sourcePiece == Role.knight && destinationPiece != null) {
+                  if (position.turn == Side.white) {
+                    wCoins += values[destinationPiece]!;
+                  } else {
+                    bCoins += values[destinationPiece]!;
+                  }
                 }
                 position = position.play(move);
               });
@@ -170,9 +200,79 @@ class _LocalChessAppState extends State<LocalChessApp> {
               ),
             ),
           ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CoinIcon(),
+                  Text(bCoins.toString()),
+                  OutlinedButton(
+                    onPressed: bCoins >= 3
+                        ? () => summonHorsey(Side.black)
+                        : null,
+                    child: Text('Call for backup (3 horsecoins)'),
+                  ),
+                ],
+              ),
+              SizedBox(height: 320 - 40 * 2 - 8 * 3),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CoinIcon(),
+                  Text(wCoins.toString()),
+                  OutlinedButton(
+                    onPressed: wCoins >= 3
+                        ? () => summonHorsey(Side.white)
+                        : null,
+                    child: Text('Call for backup (3 horsecoins)'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ],
       ),
     );
+  }
+
+  void summonHorsey(Side color) {
+    List<Square> emptySquares = [];
+    int x = 0;
+    int y = 0;
+    while (y < 8) {
+      if (position.board.pieceAt(Square(x + y * 8)) == null) {
+        emptySquares.add(Square(x + y * 8));
+      }
+      x++;
+      if (x == 8) {
+        y++;
+        x = 0;
+      }
+    }
+    setState(() {
+      if (emptySquares.isEmpty) {
+        position = position.copyWith(
+          board: position.board.setPieceAt(
+            Square(r.nextInt(64)),
+            Piece(color: color, role: Role.knight),
+          ),
+        );
+      } else {
+        position = position.copyWith(
+          board: position.board.setPieceAt(
+            emptySquares[r.nextInt(emptySquares.length)],
+            Piece(color: color, role: Role.knight),
+          ),
+        );
+      }
+      if (color == Side.white) {
+        wCoins -= 3;
+      } else {
+        bCoins -= 3;
+      }
+    });
   }
 }
 
@@ -181,9 +281,36 @@ class CoinIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.yellow,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.yellow,
+        ),
+        child: Center(
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: Colors.orangeAccent,
+            ),
+            width: 30,
+            height: 30,
+            child: Center(
+              child: Text(
+                'N',
+                style: TextStyle(
+                  fontSize: 20,
+                  decoration: TextDecoration.none,
+                  color: Colors.deepOrange,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
