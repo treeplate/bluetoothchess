@@ -174,6 +174,18 @@ class _LocalChessAppState extends State<LocalChessApp> {
       move = move.withPromotion(promoteTo);
     }
     Position result = position.play(move);
+    Iterable<MapEntry<Square, SquareSet>> moves = result.legalMoves.entries;
+    for (MapEntry<Square, SquareSet> moveset in moves) {
+      Square source2 = moveset.key;
+      for (Square destination2 in moveset.value.squares) {
+        NormalMove move = NormalMove(from: source2, to: destination2);
+        if (result.isLegal(move.withPromotion(promoteTo))) {
+          move = move.withPromotion(promoteTo);
+        }
+        Position result2 = result.play(move);
+        if (result2.isCheckmate) return -1;
+      }
+    }
     if (result.isCheckmate) {
       if (position.board.pieceAt(source)!.role == Role.knight) {
         return 2000;
@@ -196,7 +208,7 @@ class _LocalChessAppState extends State<LocalChessApp> {
       return;
     }
     Iterable<MapEntry<Square, SquareSet>> moves = position.legalMoves.entries;
-    int max = -1;
+    int max = -2;
     (Square, Square)? move;
     for (MapEntry<Square, SquareSet> moveset in moves) {
       Square source = moveset.key;
@@ -206,7 +218,6 @@ class _LocalChessAppState extends State<LocalChessApp> {
           move = (source, destination);
           max = score;
         }
-        
       }
     }
     doMove(NormalMove(from: move!.$1, to: move.$2));
@@ -311,7 +322,9 @@ class _LocalChessAppState extends State<LocalChessApp> {
                       ),
                     ],
                   ),
-                  SizedBox(height: _ChessboardState.squareSize * 8 - 40 * 2 - 8 * 3),
+                  SizedBox(
+                    height: _ChessboardState.squareSize * 8 - 40 * 2 - 8 * 3,
+                  ),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
