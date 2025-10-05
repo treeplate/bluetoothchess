@@ -170,6 +170,7 @@ class _LocalChessAppState extends State<LocalChessApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData.dark(),
       home: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -217,6 +218,7 @@ class _LocalChessAppState extends State<LocalChessApp> {
             },
           ),
           Material(
+            color: Colors.transparent,
             child: RadioGroup<Role>(
               groupValue: promoteTo,
               onChanged: (Role? value) {
@@ -227,6 +229,7 @@ class _LocalChessAppState extends State<LocalChessApp> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  Text('Promote to:'),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -270,6 +273,14 @@ class _LocalChessAppState extends State<LocalChessApp> {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  Text(
+                    'Black',
+                    style: TextStyle(
+                      color: Colors.white,
+                      decoration: TextDecoration.none,
+                      fontSize: 20,
+                    ),
+                  ),
                   CoinIcon(),
                   Text(
                     bCoins.toString(),
@@ -293,6 +304,14 @@ class _LocalChessAppState extends State<LocalChessApp> {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  Text(
+                    'White',
+                    style: TextStyle(
+                      color: Colors.white,
+                      decoration: TextDecoration.none,
+                      fontSize: 20,
+                    ),
+                  ),
                   CoinIcon(),
                   Text(
                     wCoins.toString(),
