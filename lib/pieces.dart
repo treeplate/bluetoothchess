@@ -46,7 +46,7 @@ Widget pieceWidget(Piece piece, double size, [Color? overrideColor]) {
 
 class RenderPawn extends RenderBox {
   RenderPawn({required this.color});
-  final Color color;
+  Color color;
   @override
   bool get sizedByParent => true;
 
@@ -102,11 +102,16 @@ class Pawn extends LeafRenderObjectWidget {
   RenderObject createRenderObject(BuildContext context) {
     return RenderPawn(color: color);
   }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderPawn renderObject) {
+    renderObject.color = color;
+  }
 }
 
 class RenderRook extends RenderBox {
   RenderRook({required this.color});
-  final Color color;
+  Color color;
   @override
   bool get sizedByParent => true;
 
@@ -159,11 +164,16 @@ class Rook extends LeafRenderObjectWidget {
   RenderObject createRenderObject(BuildContext context) {
     return RenderRook(color: color);
   }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderRook renderObject) {
+    renderObject.color = color;
+  }
 }
 
 class RenderBishop extends RenderBox {
   RenderBishop({required this.color});
-  final Color color;
+  Color color;
   @override
   bool get sizedByParent => true;
 
@@ -180,10 +190,10 @@ class RenderBishop extends RenderBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     Path path = Path();
-    path.moveTo(offset.dx + size.width *11/24, offset.dy + size.height / 3);
-    path.lineTo(offset.dx + size.width *11/24, offset.dy + size.height / 2);
-    path.lineTo(offset.dx + size.width *13/24, offset.dy + size.height / 2);
-    path.lineTo(offset.dx + size.width *13/24, offset.dy + size.height / 3);
+    path.moveTo(offset.dx + size.width * 11 / 24, offset.dy + size.height / 3);
+    path.lineTo(offset.dx + size.width * 11 / 24, offset.dy + size.height / 2);
+    path.lineTo(offset.dx + size.width * 13 / 24, offset.dy + size.height / 2);
+    path.lineTo(offset.dx + size.width * 13 / 24, offset.dy + size.height / 3);
     path.quadraticBezierTo(
       offset.dx + size.width * 4 / 6,
       offset.dy + size.height / 3,
@@ -221,11 +231,16 @@ class Bishop extends LeafRenderObjectWidget {
   RenderObject createRenderObject(BuildContext context) {
     return RenderBishop(color: color);
   }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderBishop renderObject) {
+    renderObject.color = color;
+  }
 }
 
 class RenderQueen extends RenderBox {
   RenderQueen({required this.color});
-  final Color color;
+  Color color;
   @override
   bool get sizedByParent => true;
 
@@ -267,11 +282,11 @@ class RenderQueen extends RenderBox {
       offset.dy + size.height * 2 / 4,
     );
     context.canvas.drawPath(path, Paint()..color = color.withAlpha(128));
-     path = Path();
-    path.moveTo(offset.dx + size.width *11/24, offset.dy + size.height / 3);
-    path.lineTo(offset.dx + size.width *11/24, offset.dy + size.height / 2);
-    path.lineTo(offset.dx + size.width *13/24, offset.dy + size.height / 2);
-    path.lineTo(offset.dx + size.width *13/24, offset.dy + size.height / 3);
+    path = Path();
+    path.moveTo(offset.dx + size.width * 11 / 24, offset.dy + size.height / 3);
+    path.lineTo(offset.dx + size.width * 11 / 24, offset.dy + size.height / 2);
+    path.lineTo(offset.dx + size.width * 13 / 24, offset.dy + size.height / 2);
+    path.lineTo(offset.dx + size.width * 13 / 24, offset.dy + size.height / 3);
     path.quadraticBezierTo(
       offset.dx + size.width * 4 / 6,
       offset.dy + size.height / 3,
@@ -309,11 +324,16 @@ class Queen extends LeafRenderObjectWidget {
   RenderObject createRenderObject(BuildContext context) {
     return RenderQueen(color: color);
   }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderQueen renderObject) {
+    renderObject.color = color;
+  }
 }
 
 class RenderKing extends RenderBox {
   RenderKing({required this.color});
-  final Color color;
+  Color color;
   @override
   bool get sizedByParent => true;
 
@@ -330,13 +350,19 @@ class RenderKing extends RenderBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     Path path = Path();
-    path.moveTo(offset.dx+size.width/7, offset.dy+size.height);
-    path.lineTo(offset.dx+size.width*3/14, offset.dy+size.height/4);
-    path.lineTo(offset.dx+size.width*5/14, offset.dy+size.height*3/4);
-    path.lineTo(offset.dx+size.width*7/14, offset.dy+size.height/4);
-    path.lineTo(offset.dx+size.width*9/14, offset.dy+size.height*3/4);
-    path.lineTo(offset.dx+size.width*11/14, offset.dy+size.height/4);
-    path.lineTo(offset.dx+size.width*12/14, offset.dy+size.height);
+    path.moveTo(offset.dx + size.width / 7, offset.dy + size.height);
+    path.lineTo(offset.dx + size.width * 3 / 14, offset.dy + size.height / 4);
+    path.lineTo(
+      offset.dx + size.width * 5 / 14,
+      offset.dy + size.height * 3 / 4,
+    );
+    path.lineTo(offset.dx + size.width * 7 / 14, offset.dy + size.height / 4);
+    path.lineTo(
+      offset.dx + size.width * 9 / 14,
+      offset.dy + size.height * 3 / 4,
+    );
+    path.lineTo(offset.dx + size.width * 11 / 14, offset.dy + size.height / 4);
+    path.lineTo(offset.dx + size.width * 12 / 14, offset.dy + size.height);
     context.canvas.drawPath(path, Paint()..color = color);
   }
 }
@@ -348,6 +374,11 @@ class King extends LeafRenderObjectWidget {
   @override
   RenderObject createRenderObject(BuildContext context) {
     return RenderKing(color: color);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderKing renderObject) {
+    renderObject.color = color;
   }
 }
 

@@ -17,6 +17,7 @@ class _ChessboardState extends State<Chessboard> {
   Square? movedSquare;
   Offset? target;
   static const double squareSize = 40;
+  
   @override
   Widget build(BuildContext context) {
     return Container(
