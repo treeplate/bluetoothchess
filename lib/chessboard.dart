@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:bluetoothchess/pieces.dart';
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/material.dart';
 
@@ -73,25 +74,29 @@ class _ChessboardState extends State<Chessboard> {
                       top: (7 - e.$1.rank.value) * squareSize,
                       child: Draggable<Square>(
                         data: e.$1,
-                        feedback: Text(
-                          e.$2.fenChar,
-                          style: TextStyle(
-                            fontSize: squareSize,
-                            color: e.$2.color == Side.white
-                                ? Colors.white
-                                : Colors.black,
+                        feedback: SizedBox(
+                          width: squareSize,
+                          height: squareSize,
+                          child: pieceWidget(
+                            e.$2,
+                            squareSize,
+                            widget.position.checkers.squares.contains(e.$1)
+                                ? Colors.red
+                                : null,
                           ),
                         ),
-                        childWhenDragging: SizedBox.square(dimension: squareSize),
-                        child: Text(
-                          e.$2.fenChar,
-                          style: TextStyle(
-                            fontSize: squareSize,
-                            color: widget.position.checkers.squares.contains(e.$1)
+                        childWhenDragging: SizedBox.square(
+                          dimension: squareSize,
+                        ),
+                        child: SizedBox(
+                          width: squareSize,
+                          height: squareSize,
+                          child: pieceWidget(
+                            e.$2,
+                            squareSize,
+                            widget.position.checkers.squares.contains(e.$1)
                                 ? Colors.red
-                                : e.$2.color == Side.white
-                                ? Colors.white
-                                : Colors.black,
+                                : null,
                           ),
                         ),
                       ),
@@ -225,7 +230,9 @@ class _LocalChessAppState extends State<LocalChessApp> {
                       Text('Knight'),
                     ],
                   ),
-                  Text(position.turn==Side.white ? 'turn: white' : 'turn: black')
+                  Text(
+                    position.turn == Side.white ? 'turn: white' : 'turn: black',
+                  ),
                 ],
               ),
             ),
@@ -330,44 +337,5 @@ class _LocalChessAppState extends State<LocalChessApp> {
         position = Chess.initial;
       }
     });
-  }
-}
-
-class CoinIcon extends StatelessWidget {
-  const CoinIcon({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: Colors.yellow,
-        ),
-        child: Center(
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: Colors.orangeAccent,
-            ),
-            width: 30,
-            height: 30,
-            child: Center(
-              child: Text(
-                'N',
-                style: TextStyle(
-                  fontSize: 20,
-                  decoration: TextDecoration.none,
-                  color: Colors.deepOrange,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }
