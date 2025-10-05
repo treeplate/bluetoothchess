@@ -167,6 +167,51 @@ class _LocalChessAppState extends State<LocalChessApp> {
   int blackWins = 0;
   int whiteWins = 0;
   Random r = Random();
+
+  int botScore(Square source, Square destination) {
+    NormalMove move = NormalMove(from: source, to: destination);
+    if (position.isLegal(move.withPromotion(promoteTo))) {
+      move = move.withPromotion(promoteTo);
+    }
+    Position result = position.play(move);
+    if (result.isCheckmate) {
+      if (position.board.pieceAt(source)!.role == Role.knight) {
+        return 2000;
+      }
+      return 1000;
+    }
+    if (position.board.pieceAt(source)!.role == Role.knight) {
+      int score = values[position.board.pieceAt(destination)?.role] ?? 0;
+      if (position.board.pieceAt(destination)?.role == Role.knight) score += 3;
+      return score * 10 + 1;
+    }
+    int score = values[position.board.pieceAt(destination)?.role] ?? 0;
+    if (position.board.pieceAt(destination)?.role == Role.knight) score += 3;
+    return score;
+  }
+
+  void botMove() {
+    if (position.checkers.isEmpty && bCoins >= 3) {
+      summonHorsey(Side.black);
+      return;
+    }
+    Iterable<MapEntry<Square, SquareSet>> moves = position.legalMoves.entries;
+    int max = -1;
+    (Square, Square)? move;
+    for (MapEntry<Square, SquareSet> moveset in moves) {
+      Square source = moveset.key;
+      for (Square destination in moveset.value.squares) {
+        int score = botScore(source, destination);
+        if (score > max) {
+          move = (source, destination);
+          max = score;
+        }
+        
+      }
+    }
+    doMove(NormalMove(from: move!.$1, to: move.$2));
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -177,55 +222,18 @@ class _LocalChessAppState extends State<LocalChessApp> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Chessboard(
-                position: position,
-                move: (NormalMove move) {
-                  setState(() {
-                    if (position.isLegal(move.withPromotion(promoteTo))) {
-                      move = move.withPromotion(promoteTo);
+              IgnorePointer(
+                ignoring: position.turn == Side.black,
+                child: Chessboard(
+                  position: position,
+                  move: (NormalMove move) {
+                    doMove(move);
+
+                    if (position.turn == Side.black) {
+                      botMove();
                     }
-                    Role? destinationPiece = position.board
-                        .pieceAt(move.to)
-                        ?.role;
-                    Role? sourcePiece = position.board.pieceAt(move.from)?.role;
-                    if (destinationPiece == Role.knight) {
-                      if (position.turn == Side.white) {
-                        wCoins += 3;
-                      } else {
-                        bCoins += 3;
-                      }
-                    }
-                    if (sourcePiece == Role.knight &&
-                        destinationPiece != null) {
-                      if (position.turn == Side.white) {
-                        wCoins += values[destinationPiece]!;
-                      } else {
-                        bCoins += values[destinationPiece]!;
-                      }
-                    }
-                    position = position.play(move);
-                    if (position.isCheckmate) {
-                      if (position.turn == Side.white) {
-                        blackWins++;
-                        if (!position.checkers.isDisjoint(
-                          position.board.knights,
-                        )) {
-                          bCoins += values[Role.king]!;
-                        }
-                      } else {
-                        whiteWins++;
-                        if (!position.checkers.isDisjoint(
-                          position.board.knights,
-                        )) {
-                          wCoins += values[Role.king]!;
-                        }
-                      }
-                    }
-                    if (position.isGameOver) {
-                      position = Chess.initial;
-                    }
-                  });
-                },
+                  },
+                ),
               ),
               Material(
                 color: Colors.transparent,
@@ -301,15 +309,6 @@ class _LocalChessAppState extends State<LocalChessApp> {
                           decoration: TextDecoration.none,
                         ),
                       ),
-                      OutlinedButton(
-                        onPressed:
-                            bCoins >= 3 &&
-                                position.turn == Side.black &&
-                                position.checkers.isEmpty
-                            ? () => summonHorsey(Side.black)
-                            : null,
-                        child: Text('Call for backup (3 horsecoins)'),
-                      ),
                     ],
                   ),
                   SizedBox(height: 320 - 40 * 2 - 8 * 3),
@@ -337,7 +336,12 @@ class _LocalChessAppState extends State<LocalChessApp> {
                             wCoins >= 3 &&
                                 position.turn == Side.white &&
                                 position.checkers.isEmpty
-                            ? () => summonHorsey(Side.white)
+                            ? () {
+                                summonHorsey(Side.white);
+                                if (position.turn == Side.black) {
+                                  botMove();
+                                }
+                              }
                             : null,
                         child: Text('Call for backup (3 horsecoins)'),
                       ),
@@ -431,6 +435,47 @@ class _LocalChessAppState extends State<LocalChessApp> {
         ],
       ),
     );
+  }
+
+  void doMove(NormalMove move) {
+    setState(() {
+      if (position.isLegal(move.withPromotion(promoteTo))) {
+        move = move.withPromotion(promoteTo);
+      }
+      Role? destinationPiece = position.board.pieceAt(move.to)?.role;
+      Role? sourcePiece = position.board.pieceAt(move.from)?.role;
+      if (destinationPiece == Role.knight) {
+        if (position.turn == Side.white) {
+          wCoins += 3;
+        } else {
+          bCoins += 3;
+        }
+      }
+      if (sourcePiece == Role.knight && destinationPiece != null) {
+        if (position.turn == Side.white) {
+          wCoins += values[destinationPiece]!;
+        } else {
+          bCoins += values[destinationPiece]!;
+        }
+      }
+      position = position.play(move);
+      if (position.isCheckmate) {
+        if (position.turn == Side.white) {
+          blackWins++;
+          if (!position.checkers.isDisjoint(position.board.knights)) {
+            bCoins += values[Role.king]!;
+          }
+        } else {
+          whiteWins++;
+          if (!position.checkers.isDisjoint(position.board.knights)) {
+            wCoins += values[Role.king]!;
+          }
+        }
+      }
+      if (position.isGameOver) {
+        position = Chess.initial;
+      }
+    });
   }
 
   void summonHorsey(Side color) {

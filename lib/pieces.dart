@@ -52,7 +52,6 @@ class RenderPawn extends RenderBox {
 
   @override
   Size computeDryLayout(BoxConstraints constraints) {
-    print(constraints.biggest);
     return constraints.biggest;
   }
 
