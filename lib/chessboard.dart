@@ -31,7 +31,7 @@ class _ChessboardState extends State<Chessboard> {
             target = null;
           });
         },
-        builder: (BuildContext context, _, _) {
+        builder: (BuildContext context, List<Square?> candidates, _) {
           return Listener(
             onPointerDown: (PointerDownEvent event) {
               setState(() {
@@ -71,7 +71,7 @@ class _ChessboardState extends State<Chessboard> {
                   ...widget.position.board.pieces.map(
                     (e) => Positioned(
                       left: e.$1.file.value * squareSize,
-                      top: (7 - e.$1.rank.value) * squareSize,
+                      bottom: e.$1.rank.value * squareSize,
                       child: Draggable<Square>(
                         data: e.$1,
                         feedback: SizedBox(
@@ -112,6 +112,26 @@ class _ChessboardState extends State<Chessboard> {
                         color: Colors.grey,
                       ),
                     ),
+                  if (candidates.isNotEmpty)
+                    ...widget.position
+                        .legalMovesOf(candidates.single!)
+                        .squares
+                        .map(
+                          (e) => Positioned(
+                      left: e.file.value * squareSize+squareSize/4,
+                      bottom: e.rank.value * squareSize+squareSize/4,
+                            child: Container(
+                              width: squareSize / 2,
+                              height: squareSize / 2,
+                              decoration: BoxDecoration(
+                                color: Colors.amber,
+                                borderRadius: BorderRadius.circular(
+                                  squareSize / 4,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                 ],
               ),
             ),
