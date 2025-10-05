@@ -18,86 +18,101 @@ class _ChessboardState extends State<Chessboard> {
   static const double squareSize = 40;
   @override
   Widget build(BuildContext context) {
-    return DragTarget<Square>(
-      onWillAcceptWithDetails: (details) {
-        movedSquare = details.data;
-        return true;
-      },
-      onLeave: (data) {
-        setState(() {
-          target = null;
-        });
-      },
-      builder: (BuildContext context, _, _) {
-        return Listener(
-          onPointerDown: (PointerDownEvent event) {
-            setState(() {
-              target = event.position;
-            });
-          },
-          onPointerUp: (event) {
-            if (target == null || movedSquare == null) return;
-            setState(() {
-              if (!Size(squareSize * 8, squareSize * 8).contains(target!)) {
+    return Container(
+      color: Colors.brown,
+      child: DragTarget<Square>(
+        onWillAcceptWithDetails: (details) {
+          movedSquare = details.data;
+          return true;
+        },
+        onLeave: (data) {
+          setState(() {
+            target = null;
+          });
+        },
+        builder: (BuildContext context, _, _) {
+          return Listener(
+            onPointerDown: (PointerDownEvent event) {
+              setState(() {
+                target = event.position;
+              });
+            },
+            onPointerUp: (event) {
+              if (target == null || movedSquare == null) return;
+              setState(() {
+                if (!Size(squareSize * 8, squareSize * 8).contains(target!)) {
+                  target = null;
+                  movedSquare = null;
+                  return;
+                }
+                Square square = Square.fromCoords(
+                  File.values[target!.dx ~/ squareSize],
+                  Rank.values[7 - target!.dy ~/ squareSize],
+                );
+                NormalMove move = NormalMove(from: movedSquare!, to: square);
+                if (widget.position.isLegal(move)) {
+                  widget.move(move);
+                }
                 target = null;
                 movedSquare = null;
-                return;
-              }
-              Square square = Square.fromCoords(
-                File.values[target!.dx ~/ squareSize],
-                Rank.values[7 - target!.dy ~/ squareSize],
-              );
-              NormalMove move = NormalMove(from: movedSquare!, to: square);
-              if (widget.position.isLegal(move)) {
-                widget.move(move);
-              }
-              target = null;
-              movedSquare = null;
-            });
-          },
-          onPointerMove: (PointerMoveEvent event) {
-            setState(() {
-              target = event.position;
-            });
-          },
-          child: SizedBox(
-            width: squareSize * 8,
-            height: squareSize * 8,
-            child: Stack(
-              children: [
-                ...widget.position.board.pieces.map(
-                  (e) => Positioned(
-                    left: e.$1.file.value * squareSize,
-                    top: (7 - e.$1.rank.value) * squareSize,
-                    child: Draggable<Square>(
-                      data: e.$1,
-                      feedback: Text(
-                        e.$2.fenChar,
-                        style: TextStyle(fontSize: squareSize),
-                      ),
-                      childWhenDragging: SizedBox.square(dimension: squareSize),
-                      child: Text(
-                        e.$2.fenChar,
-                        style: TextStyle(fontSize: squareSize),
+              });
+            },
+            onPointerMove: (PointerMoveEvent event) {
+              setState(() {
+                target = event.position;
+              });
+            },
+            child: SizedBox(
+              width: squareSize * 8,
+              height: squareSize * 8,
+              child: Stack(
+                children: [
+                  ...widget.position.board.pieces.map(
+                    (e) => Positioned(
+                      left: e.$1.file.value * squareSize,
+                      top: (7 - e.$1.rank.value) * squareSize,
+                      child: Draggable<Square>(
+                        data: e.$1,
+                        feedback: Text(
+                          e.$2.fenChar,
+                          style: TextStyle(
+                            fontSize: squareSize,
+                            color: e.$2.color == Side.white
+                                ? Colors.white
+                                : Colors.black,
+                          ),
+                        ),
+                        childWhenDragging: SizedBox.square(dimension: squareSize),
+                        child: Text(
+                          e.$2.fenChar,
+                          style: TextStyle(
+                            fontSize: squareSize,
+                            color: widget.position.checkers.squares.contains(e.$1)
+                                ? Colors.red
+                                : e.$2.color == Side.white
+                                ? Colors.white
+                                : Colors.black,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                if (target != null)
-                  Positioned(
-                    left: target!.dx ~/ squareSize * squareSize,
-                    top: target!.dy ~/ squareSize * squareSize,
-                    child: Container(
-                      width: squareSize,
-                      height: squareSize,
-                      color: Colors.grey,
+                  if (target != null)
+                    Positioned(
+                      left: target!.dx ~/ squareSize * squareSize,
+                      top: target!.dy ~/ squareSize * squareSize,
+                      child: Container(
+                        width: squareSize,
+                        height: squareSize,
+                        color: Colors.grey,
+                      ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
@@ -157,11 +172,11 @@ class _LocalChessAppState extends State<LocalChessApp> {
                 if (position.isCheckmate) {
                   if (position.turn == Side.white) {
                     if (!position.checkers.isDisjoint(position.board.knights)) {
-                      wCoins += values[Role.king]!;
+                      bCoins += values[Role.king]!;
                     }
                   } else {
                     if (!position.checkers.isDisjoint(position.board.knights)) {
-                      bCoins += values[Role.king]!;
+                      wCoins += values[Role.king]!;
                     }
                   }
                 }
@@ -210,6 +225,7 @@ class _LocalChessAppState extends State<LocalChessApp> {
                       Text('Knight'),
                     ],
                   ),
+                  Text(position.turn==Side.white ? 'turn: white' : 'turn: black')
                 ],
               ),
             ),
