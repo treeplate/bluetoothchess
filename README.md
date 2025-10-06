@@ -12,3 +12,4 @@ Rook: 4 horsecoins
 Queen: 7 horsecoins
 King: 10 horsecoins
 There's also an implementation of TicTacToe.
+here's a demo video: https://drive.google.com/file/d/1Lbgr-tlRgaMPE_9WeT5irk-Nt4z7Ya-_/view?usp=sharing
